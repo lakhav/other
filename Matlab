@@ -1,0 +1,242 @@
+% %%Gauss Elimination
+% 
+% %a=input('Enter A :')
+% %b=input('Enter B :')
+% info=[6,3,2;6,4,3;20,15,12];
+% 
+% b=[6;0;0];
+% 
+% 
+% A=[info b];
+% 
+% for i=1:size(A,1)
+%     for j=i+1:size(A,1)
+%         key1=A(j,i)/A(i,i);
+%         A(j,:)=A(j,:)-key1 * A(i,:);
+%     end
+% end
+% 
+% display(A);
+% 
+% x=zeros(1,size(info,2));
+% 
+% for i=size(A,1):-1:1
+%     hg=sum(A(i,i+1:end-1) .* x(i+1:end));
+% 
+%      x(i)=(A(i,end)-hg)/A(i,i);
+% end
+% 
+% x
+
+%dfprintf('Solution is x= %d',x)
+
+
+
+%%Gauss siedel
+% clc
+% clear all;
+% 
+% A=[27 6 -1 ; 6 15 2 ; 1 1 54]
+% b=[85; 72; 110]
+% maxerr=1e-5;
+% n=size(A,1)
+% x=zeros(1,n);
+% err1=inf;
+% itr=0;
+% 
+% while all (err1 > maxerr)
+%     xold=x;
+%     for i = 1 : n
+%         sum=0;
+%         for j=1:i-1
+%             sum=sum+A(i,j) * x(j);
+%         end
+%         for j=i+1 : n
+%             sum=sum+A(i,j) * xold(j);
+%         end
+% 
+%         x(i) =  (b(i) - sum)/A(i,i);
+% 
+%     end
+% 
+%     itr=itr+1;
+%     y(itr,:) = x;
+%     err1=abs(xold-x);
+% end
+% 
+% fprintf('Method converges in %d iteration \n',itr);
+% 
+% disp(x);
+% 
+% 
+% %%Lagranges
+% clc
+% clear all
+% format short
+% 
+% x = [110 130 160 190 ]
+% y = [10.8 8.1 5.5 4.8]
+% X = 140
+% n=size(x,2)
+% 
+% for i= 1 : n
+%     x1=x;
+%     x1(i)=[];
+%     l(i)=prod(X-x1)./prod(x(i)-x1);
+% end
+% 
+% Y=sum(l.*y);
+% 
+% fprintf('Value of Y at X = %f is %f \n',X,Y);
+% 
+% 
+% 
+% %%LUD
+% clc;
+% clear all;
+% 
+% A = [12 33 44; 6 5 4; 98 125 678];
+% b = [4;5;6];
+% n = size(A,1); % no. of rows
+% L = eye(n)'
+% for j=1:n-1
+%     for i=j+1:n
+%         L(i,j) = A(i,j)/A(j,j);
+%         A(i,:)=A(i,:)-A(j,:)*A(i,j)/A(j,j);
+%     end
+% end
+% U = A;
+% L;
+% Y = inv(L)*b
+% X = inv(U)*Y
+% 
+
+% 
+% % newton divide diff
+% clc;
+% clear all;
+% x=[0 1,2,4,5,6];
+% y=[1,14,15,5,6,19];
+% n=length(x);
+% f=zeros(n,n);
+% p=2.5;
+% f(:,1)=y;
+% for j=2:n
+%     for i=j:n
+%         f(i,j)=(f(i,j-1)-f(i-1,j-1))/(x(i)-x(i-j+1));
+%     end
+% end
+% sum=y(1);
+% for i=2:n
+%     prod(i)=1;
+%     for j=1:i-1
+%         prod(i)=(p-x(j))*prod(i);
+%     end
+%     sum=sum+prod(i)*f(i,i);
+% end
+% sum
+% 
+
+
+% %PowerMethod
+% clc;
+% clear all;
+% A=[0 11 -5;-2 17 -7;-4 26 -10];
+% err=[1;1;1];
+% toll=10^-4;
+% x0=[1;1;1];
+% while(norm(err,inf)>toll)
+%     y=A*x0;
+%     k=norm(y,inf);
+%     x=y/k;
+%     err=x-x0;
+%     x0=x;
+% end
+% x
+% 
+% %trapezoidal
+% clc
+% clear all
+% format short
+% 
+% f = input("Enter function f: ");
+% a = input("Enter lower limit: ");
+% b = input("Enter upper limit: ");
+% n = input("Enter the number of sub-intervals: ");
+% h = (b-a)/n;
+% sum = 0;
+% for i = 1:n-1
+%     sum = sum + 2 * f(a + i*h);
+% end
+% integral = h/2 * (f(a) + sum + f(b));
+% fprintf("The value of integral = %f\n", integral);
+% 
+% 
+% %simpsons
+% clc
+% clear all
+% format short
+% 
+%  f=@(x) (cos(x)^2);
+% a = 1.75
+% b = 0.25
+% n = 4
+% h = (b-a)/n;
+% sum = 0;
+% for i = 1:n-1
+%     if rem(i,2) == 0
+%         sum = sum + (2 * f(a + i*h)); 
+%     else
+%         sum = sum + (4 * f(a + i*h)); 
+%     end
+% end
+% integral = h/3 * (f(a) + sum + f(b));
+% fprintf("The value of integral = %.4f\n", integral);
+% 
+% 
+%%Euler
+% format short
+% clc
+% clear all;
+% f=@(x,y) (y-x)./(y+x);
+% x=input('enter initial value of x:')
+% y=input('enter initial value of y(x):')
+% h=input('enter the step size(h):')
+% X= input('Enter X at which Y is required:')
+% %Variables={'x','y','fxy','NewY'};
+% k=1      
+% while X >= x
+%     fprintf('the value of y at x=%f is %f \n',x,y);
+%     fxy=f(x,y);
+%     newy=y+h.*fxy;
+%     rsl(k,:)=[x y fxy newy];
+%     k=k+1;
+%     x=x+h;
+%     y=newy;
+% end
+
+% 
+% 
+% %%RKmethod
+% clc
+% clear all;
+% f=@(x,y) x*(y^(1/3))
+% x=input('enter initial value of x')
+% y=input('enter initial value of y(x)')
+% h=input('enter the step size(h)')
+% X= input('Enter X at which Y is required')
+% while X-x>=10^(-10)
+%     fprintf('the value of y at x=%f is %f \n',x,y);
+%     k1=h*f(x,y);
+%     k2=h*f(x+h/2,y+k1/2);
+%     k3=h*f(x+h/2,y+k2/2);
+%     k14=h*f(x+h,y+k3);
+%     k=(k1+2*k2+2*k3+k14)/6;
+%     x=x+h;
+%     y=y+k;
+% end
+% fprintf('output of y(%f)=%f\n',X,y)
+% 
+% 
+
+
