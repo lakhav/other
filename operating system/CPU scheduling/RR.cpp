@@ -1,80 +1,150 @@
 #include <iostream>
-#include <queue>
 
 using namespace std;
 
-struct Process {
-    int pid;
-    int arrivalTime;
-    int burstTime;
-    int remainingTime;
-    int completionTime;
-    int turnaroundTime;
-    int waitingTime;
-};
-
-int main() {
-    int arrivalTimes[] = {0, 1, 2, 3, 4, 6};
-    int burstTimes[] = {5, 6, 3, 1, 5, 4};
-    const int n = sizeof(arrivalTimes) / sizeof(arrivalTimes[0]);
-    const int timeQuantum = 4;
-
-    Process processes[n];
-
-    for (int i = 0; i < n; ++i) {
-        processes[i].pid = i + 1;
-        processes[i].arrivalTime = arrivalTimes[i];
-        processes[i].burstTime = burstTimes[i];
-        processes[i].remainingTime = burstTimes[i];
-    }
-
-    queue<Process> readyQueue;
-    int currentTime = 0;
-
-    cout << "pid\tAT\tBT\tCT\tTAT\tWT" << endl;
-
-    while (true) {
-        bool allCompleted = true;
-
-        for (int i = 0; i < n; ++i) {
-            if (processes[i].remainingTime > 0) {
-                allCompleted = false;
-
-                if (processes[i].remainingTime > timeQuantum) {
-                    currentTime += timeQuantum;
-                    processes[i].remainingTime -= timeQuantum;
-                } else {
-                    currentTime += processes[i].remainingTime;
-                    processes[i].completionTime = currentTime;
-                    processes[i].turnaroundTime = processes[i].completionTime - processes[i].arrivalTime;
-                    processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
-                    processes[i].remainingTime = 0;
-
-                    cout << processes[i].pid << "\t" << processes[i].arrivalTime << "\t"
-                         << processes[i].burstTime << "\t" << processes[i].completionTime << "\t"
-                         << processes[i].turnaroundTime << "\t" << processes[i].waitingTime << endl;
-                }
-            }
-        }
-
-        if (allCompleted) {
+void queueUpdation(int queue[], int timer, int arrival[], int n, int maxProcessIndex)
+{
+    int zeroIndex;
+    for (int i = 0; i < n; i++)
+    {
+        if (queue[i] == 0)
+        {
+            zeroIndex = i;
             break;
         }
     }
+    queue[zeroIndex] = maxProcessIndex + 1;
+}
 
-    float totalWaitingTime = 0;
-    for (int i = 0; i < n; ++i) {
-        totalWaitingTime += processes[i].waitingTime;
+void queueMaintenance(int queue[], int n)
+{
+    for (int i = 0; (i < n - 1) && (queue[i + 1] != 0); i++)
+    {
+        int temp = queue[i];
+        queue[i] = queue[i + 1];
+        queue[i + 1] = temp;
     }
-    float averageWaitingTime = totalWaitingTime / n;
-    cout << "Average Waiting Time: " << averageWaitingTime << endl;
+}
 
-    cout << "Execution Sequence: ";
-    for (int i = 0; i < n; ++i) {
-        cout << "P" << processes[i].pid << " ";
+void checkNewArrival(int timer, int arrival[], int n, int maxProcessIndex, int queue[])
+{
+    if (timer <= arrival[n - 1])
+    {
+        bool newArrival = false;
+        for (int j = (maxProcessIndex + 1); j < n; j++)
+        {
+            if (arrival[j] <= timer)
+            {
+                if (maxProcessIndex < j)
+                {
+                    maxProcessIndex = j;
+                    newArrival = true;
+                }
+            }
+        }
+        if (newArrival)
+            queueUpdation(queue, timer, arrival, n, maxProcessIndex);
     }
-    cout << endl;
+}
+
+int main()
+{
+    int n, timeQuantum, timer = 0, maxProcessIndex = 0;
+    float avgWait = 0, avgTT = 0;
+
+    cout << "Enter the time quantum: ";
+    cin >> timeQuantum;
+
+    int arrivalTimes[] = {0, 1, 2, 3, 4, 6}; // Example arrival times
+    int burstTimes[] = {5, 6, 3, 1, 5, 4};   // Example burst times
+    n = sizeof(arrivalTimes) / sizeof(arrivalTimes[0]);
+
+    int arrival[n], burst[n], wait[n], turn[n], queue[n], tempBurst[n];
+    bool complete[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        arrival[i] = arrivalTimes[i];
+        burst[i] = burstTimes[i];
+        tempBurst[i] = burst[i];
+        complete[i] = false;
+        queue[i] = 0;
+    }
+
+    while (timer < arrival[0])
+        timer++;
+
+    queue[0] = 1;
+
+    while (true)
+    {
+        bool flag = true;
+        for (int i = 0; i < n; i++)
+        {
+            if (tempBurst[i] != 0)
+            {
+                flag = false;
+                break;
+            }
+        }
+        if (flag)
+            break;
+
+        for (int i = 0; (i < n) && (queue[i] != 0); i++)
+        {
+            int ctr = 0;
+            while ((ctr < timeQuantum) && (tempBurst[queue[0] - 1] > 0))
+            {
+                tempBurst[queue[0] - 1]--;
+                timer++;
+                ctr++;
+                checkNewArrival(timer, arrival, n, maxProcessIndex, queue);
+            }
+            if ((tempBurst[queue[0] - 1] == 0) && (complete[queue[0] - 1] == false))
+            {
+                turn[queue[0] - 1] = timer;
+                complete[queue[0] - 1] = true;
+            }
+            bool idle = true;
+            if (queue[n - 1] == 0)
+            {
+                for (int i = 0; i < n && queue[i] != 0; i++)
+                {
+                    if (complete[queue[i] - 1] == false)
+                    {
+                        idle = false;
+                    }
+                }
+            }
+            else
+                idle = false;
+            if (idle)
+            {
+                timer++;
+                checkNewArrival(timer, arrival, n, maxProcessIndex, queue);
+            }
+            queueMaintenance(queue, n);
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        turn[i] = turn[i] - arrival[i];
+        wait[i] = turn[i] - burst[i];
+    }
+
+    cout << "\nProgram No.\tArrival Time\tBurst Time\tWait Time\tTurnAround Time" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        cout << i + 1 << "\t\t" << arrival[i] << "\t\t" << burst[i] << "\t\t" << wait[i] << "\t\t" << turn[i] << endl;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        avgWait += wait[i];
+        avgTT += turn[i];
+    }
+    cout << "\nAverage wait time : " << (avgWait / n) << "\nAverage Turn Around Time : " << (avgTT / n);
 
     return 0;
 }
-
