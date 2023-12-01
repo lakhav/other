@@ -1,0 +1,69 @@
+#include<iostream>
+using namespace std;
+
+struct Process {
+    int pid;           
+    int at;    
+    int bt;      
+	int wt;    
+    int tat; 
+};
+
+void fcfs(Process Processes[],int n)
+{
+	int wt[n];
+	int awt,atat;
+	int temp[n];
+	temp[0]=0;
+	int i;
+	cout<<"\n\n====FCFS====\n\n";
+	cout << "PN\t\tAT\t\t"
+		<< "BT\t\tTAT\t\tWT\n\n";
+
+	for(i=0;i<n;i++)
+	{
+		Processes[i].wt=0;
+		Processes[i].tat=0;
+		temp[i+1]=temp[i]+Processes[i].bt;
+		Processes[i].wt=temp[i]-Processes[i].at;
+		Processes[i].tat=Processes[i].wt+Processes[i].bt;
+		awt=awt+Processes[i].wt;
+		atat=atat+Processes[i].tat;
+
+		cout << i
+		<< "\t\t" << Processes[i].at << "\t\t"
+		<< Processes[i].bt << "\t\t" <<Processes[i].tat << "\t\t"  << Processes[i].wt<< endl;
+
+	}
+
+	awt=awt/n;
+	atat=atat/n;
+
+	cout<<endl;
+	cout<<"Average waiting time :"<<awt;
+	cout<<"Average turn around time :"<<atat;
+
+}
+
+int main()
+{
+	int n;
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    // Array to store processes
+    Process processes[n];
+
+    // Input arrival time and burst time for each process
+    cout << "Enter arrival time and burst time for each process:\n";
+    for (int i = 0; i < n; ++i) {
+        processes[i].pid = i + 1;
+        cout << "Process " << processes[i].pid << " Arrival Time: ";
+        cin >> processes[i].at;
+        cout << "Process " << processes[i].pid << " Burst Time: ";
+        cin >> processes[i].bt;
+    }
+
+	fcfs(processes, n);
+
+}
