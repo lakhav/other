@@ -1,0 +1,54 @@
+#include <unistd.h>
+#include <iostream> 
+
+int main() {
+	
+	int pipefd1[2], pipefd2[2];
+	char readmsg1[23], readmsg2[23];
+
+	if(pipe(pipefd1) == -1) return 1;
+	if(pipe(pipefd2) == -1) return 1;
+
+	int pid = fork();
+
+	if(pid < 0) {
+		
+		std::cout << "Unsuccessful fork command \n";
+		return 1;
+	}
+
+	if(pid == 0) {
+	//child process
+		
+		//child process reading 
+		close(pipefd1[1]);
+
+		read(pipefd1[0], readmsg1, 23);
+		std::cout << "child read: " << readmsg1 << std::endl;
+
+		close(pipefd1[0]);
+	
+		//child process writing
+		close(pipefd2[0]);
+		write(pipefd2[1], "child writing to parent", 25);
+		close(pipefd2[1]);
+	}
+
+	else {
+	//parent process
+	
+		close(pipefd1[0]);
+		write(pipefd1[1], "parent writing to child", 24);
+		close(pipefd1[1]);
+
+		//parent process read
+		close(pipefd2[1]);
+		
+		read(pipefd2[0], readmsg2, 20);
+		std::cout << "parent read: " << readmsg2 << std::endl;
+		close(pipefd2[0]);
+	
+
+	}
+	return 0;
+}
