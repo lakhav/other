@@ -1,0 +1,34 @@
+
+A=[-6 7 -7 -9 -1; 1 1 -1 4 0];
+b=[4;10]
+c=[2 3 -3 5]
+
+ n = size(A,2); 
+ m = size(A,1); 
+ 
+ total_cases = nchoosek(n,m) %ncr
+ 
+ basic_variable = nchoosek(1:n ,m) 
+ 
+ 
+ sol = []
+ 
+ for i = 1 :total_cases
+    y = zeros(n,1)
+    
+    x = A(:,basic_variable(i,:))\ b
+    
+    if all (x >= 0 & x~=inf & x~=-inf )
+        y(basic_variable(i , : )) = x
+    end
+    sol = [sol y]
+ end
+ 
+ optimum_value =[]
+ for i = 1 : size(sol,2)
+    optimum_value(i) = c(1)*sol(1,i) + c(2)*sol(2,i)+c(3)*sol(3,i) + c(4)*sol(4,i)
+ end
+ 
+ [a b] = max(optimum_value) 
+ a
+ sol(:,b)
