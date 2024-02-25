@@ -1,0 +1,91 @@
+
+clc
+clear all
+A = [1 2; 1 1; 0 1]
+B = [2000; 1500; 600]
+C = [3 2]
+
+x1= 0 : max(B)
+
+x21=((B(1)-A(1,1)*x1))/A(1,2)
+
+x22=((B(2)-A(2,1)*x1))/A(2,2)
+
+x23=((B(3)-A(3,1)*x1))/A(3,2)
+
+
+x21=max(0,x21); 
+x22=max(0,x22);
+x23=max(0,x23);
+
+plot(x1,x21);
+hold on ;
+plot(x1,x22);
+plot(x1,x23);
+
+hold off;
+
+cy1=find(x21 == 0);
+cx1=find(x1 == 0);
+cy2=find(x22 == 0);
+cy3=find(x23 == 0);
+
+
+line1 = [x1([cy1 cx1]); x21([cy1 cx1])]'
+line2 = [x1([cy2 cx1]); x22([cy2 cx1])]'
+line3 = [x1([cy3 cx1]); x23([cy3 cx1])]'
+
+GM=[0 ; 0] 
+
+
+for i = 1 : size(A,1)
+    l1=A(i,:) 
+    b1=B(i,:)  
+    
+    for j = i+1 : size(A,1)
+        l2=A(j,:)
+        b2=B(j,:)
+        
+        
+        Aa=[l1 ; l2]
+        Ba=[b1 ; b2]
+        
+        X=Aa\Ba
+        
+        GM = [GM X]
+    end
+end
+
+point_int = GM'
+
+points = [line1;line2;line3;point_int]
+
+x1 = points(: , 1)
+x2 = points(: , 2)
+
+for i = 1 : size(points,1) 
+    cons1(i) = A(1,1)*x1(i) + A(1,2)*x2(i) -B(1)
+    cons2(i) = A(2,1)*x1(i) + A(2,2)*x2(i) -B(2)
+    cons3(i) = A(3,1)*x1(i) + A(3,2)*x2(i) -B(3)      
+        
+end
+
+ s1 = find (cons1 > 0) 
+ s2 = find (cons2 > 0)  
+ s3 = find (cons3 > 0)
+ 
+
+ S = unique([s1 s2 s3]) 
+ 
+ points(S , :) = []     
+
+ x1 = points(: , 1)
+ x2 = points(: , 2)
+
+ for i = 1 : size(points,1)
+    opt(i) = C(1)*x1(i) + C(2)*x2(i)
+ end
+ 
+ opt=max(opt)
+ 
+ 
